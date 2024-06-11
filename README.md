@@ -1,3 +1,8 @@
+## Management System
+
+본 프로젝트는 리액트 실습용으로 제작된 고객관리시스템입니다.
+(Management System)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
