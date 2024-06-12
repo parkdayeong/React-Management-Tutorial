@@ -2,6 +2,8 @@ import './App.css';
 import Customer from './components/Customer';
 import { Table, TableHead, TableBody, TableRow, TableCell, Paper } from '@mui/material';
 import { withStyles } from '@material-ui/core/styles';
+import React, { useState, useEffect } from 'react';
+import { CircularProgress } from '@material-ui/core';
 
 const styles = (theme) => ({
   root: {
@@ -12,53 +14,71 @@ const styles = (theme) => ({
   table: {
     minWidth: 1080,
   },
+  progress: {
+    margin: theme.spacing(3),
+  },
+  progressContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+  },
 });
 
 function App(props) {
   const { classes } = props;
-  const customers = [
-    {
-      id: 1,
-      image: 'https://loremflickr.com/64/64',
-      name: '박콩',
-      birthday: '220208',
-      gender: '여자',
-      job: '고양이',
-    },
-    {
-      id: 2,
-      image: 'https://loremflickr.com/64/64',
-      name: '호야',
-      birthday: '200015',
-      gender: '여자',
-      job: '고양이',
-    },
-    {
-      id: 3,
-      image: 'https://loremflickr.com/64/64',
-      name: '쿠키',
-      birthday: '220208',
-      gender: '여자',
-      job: '고양이',
-    },
-  ];
+
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCompleted((prevCompleted) => (prevCompleted >= 100 ? 0 : prevCompleted + 1));
+    }, 20);
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/customers');
+        if (!response.ok) {
+          throw new Error('☹💥 Network response was not ok');
+        }
+        const data = await response.json();
+        setCustomers(data);
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   return (
     <Paper className={classes.root}>
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            <TableCell>번호</TableCell>
-            <TableCell>이미지</TableCell>
-            <TableCell>이름</TableCell>
-            <TableCell>생년월일</TableCell>
-            <TableCell>성별</TableCell>
-            <TableCell>직업</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {customers.map((customer) => {
-            return (
+      {loading ? (
+        <div className={classes.progressContainer}>
+          <CircularProgress className={classes.progress} variant='determinate' value={completed} />
+        </div>
+      ) : (
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell>번호</TableCell>
+              <TableCell>이미지</TableCell>
+              <TableCell>이름</TableCell>
+              <TableCell>생년월일</TableCell>
+              <TableCell>성별</TableCell>
+              <TableCell>직업</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {customers.map((customer) => (
               <Customer
                 key={customer.id}
                 id={customer.id}
@@ -68,10 +88,10 @@ function App(props) {
                 gender={customer.gender}
                 job={customer.job}
               />
-            );
-          })}
-        </TableBody>
-      </Table>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </Paper>
   );
 }
