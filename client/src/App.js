@@ -83,7 +83,7 @@ function App(props) {
                 key={customer.id}
                 id={customer.id}
                 image={customer.image}
-                name={customer.name}
+                name={customer.NAME}
                 birthday={customer.birthday}
                 gender={customer.gender}
                 job={customer.job}
